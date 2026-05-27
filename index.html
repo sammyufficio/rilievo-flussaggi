@@ -60,7 +60,6 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 }
 .pc-num.done { background: var(--teal-light); color: var(--teal); }
 .pc-fixed-tag { font-size: 10px; font-weight: 600; background: #FAEEDA; color: #854F0B; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
-.pc-remove { background: none; border: none; color: var(--gray-mid); font-size: 20px; cursor: pointer; padding: 0 2px; line-height: 1; margin-left: auto; }
 
 /* CODE ROW */
 .code-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
@@ -95,14 +94,6 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 }
 .note-input:focus { outline: none; border-color: var(--gray-mid); }
 
-/* ADD BTN */
-.add-btn {
-  width: 100%; padding: 10px; border: 1.5px dashed var(--gray-mid); border-radius: 8px;
-  background: transparent; font-family: var(--font); font-size: 13px; color: var(--gray);
-  cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;
-  -webkit-tap-highlight-color: transparent;
-}
-.add-btn:active { background: var(--gray-light); }
 
 /* SUBMIT */
 .submit-wrap { padding: 14px 12px 40px; display: flex; flex-direction: column; gap: 10px; }
@@ -233,6 +224,15 @@ const INITIAL_POINTS = [
 let state = loadState();
 
 function loadState() {
+  // 1. Prova dall'URL hash (priorità massima — sopravvive alla chiusura del browser)
+  try {
+    const hash = location.hash.slice(1);
+    if (hash) {
+      const s = JSON.parse(decodeURIComponent(atob(hash)));
+      if (s && s.points) return s;
+    }
+  } catch(e) {}
+  // 2. Fallback localStorage
   try { const s = localStorage.getItem('rv3'); if(s) return JSON.parse(s); } catch(e) {}
   return buildInitial();
 }
@@ -242,7 +242,13 @@ function buildInitial() {
     eid: 100, week:'', month:''
   };
 }
-function save() { try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {} }
+function save() {
+  try {
+    const encoded = btoa(encodeURIComponent(JSON.stringify(state)));
+    history.replaceState(null, '', '#' + encoded);
+  } catch(e) {}
+  try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {}
+}
 
 function isDone(p) {
   return p.code && p.code.trim() &&
@@ -289,7 +295,7 @@ function render() {
         <span class="section-badge" style="background:${m.color}">${pts.length}</span>
       </div>`;
     pts.forEach(p=>{ html+=renderPoint(p); });
-    html+=`<button class="add-btn" onclick="addPoint(${m.id})">＋ Aggiungi punto</button></div>`;
+    html+=`</div>`;
   });
   document.getElementById('app').innerHTML=html;
   updateProgress();
@@ -301,7 +307,6 @@ function renderPoint(p) {
     <div class="pc-header">
       <div class="pc-num${done?' done':''}">${gIdx(p.id)}</div>
       ${p.fisso && p.codeFixed ? `<span class="pc-fixed-tag">Fisso</span>` : ''}
-      ${!p.fisso ? `<button class="pc-remove" onclick="removePoint('${p.id}')">✕</button>` : ''}
     </div>
     <div class="code-row">
       <span style="font-size:11px;color:var(--gray-mid);font-weight:600;min-width:48px">Codice</span>
@@ -320,16 +325,8 @@ function renderPoint(p) {
   </div>`;
 }
 
-function addPoint(macroId) {
-  state.eid++;
-  state.points.push({ id:'e'+state.eid, macro:macroId, fisso:false, code:'', codeFixed:false, tipo:'', tipoFixed:false, flusso:false, note:'' });
-  save(); render();
-  setTimeout(()=>{ const el=document.getElementById('card-e'+state.eid); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },80);
-}
-function removePoint(id) {
-  if(!confirm('Rimuovere questo punto?')) return;
-  state.points=state.points.filter(p=>p.id!==id); save(); render();
-}
+
+
 
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('hdr-week').addEventListener('change',e=>{ state.week=e.target.value; save(); });
@@ -477,7 +474,7 @@ function generatePDF() {
 
 function nuovaSett() {
   if(!confirm('Iniziare nuova settimana? I dati saranno cancellati.')) return;
-  localStorage.removeItem('rv3'); state=buildInitial(); save(); render();
+  localStorage.removeItem('rv3'); history.replaceState(null,'',location.pathname+location.search); state=buildInitial(); save(); render();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
