@@ -114,6 +114,9 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 .btn-pdf:active { background:#791F1F; }
 .btn-copy { width:100%; padding:12px; background:var(--teal-light); color:var(--teal); border:none; border-radius:10px; font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer; }
 .btn-copy.copied { background:#EAF3DE; color:#3B6D11; }
+.btn-draft { width:100%; padding:12px; background:#FFF8E6; color:#854F0B; border:1.5px solid #F0C060; border-radius:10px; font-family:var(--font); font-size:14px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.btn-draft.saved { background:#EAF3DE; color:#3B6D11; border-color:#9FE1CB; }
+.draft-hint { font-size:11px; color:var(--gray-mid); text-align:center; }
 .spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
@@ -150,6 +153,8 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 
 <div class="submit-wrap">
   <button class="btn-main" onclick="openExport()">📤 Chiudi settimana ed esporta</button>
+  <button class="btn-draft" id="draftBtn" onclick="salvaBozza()">💾 Salva bozza</button>
+  <div class="draft-hint" id="draftHint">Copia il link e riaprilo per riprendere da qui</div>
   <button class="btn-sec" onclick="nuovaSett()">🔄 Nuova settimana</button>
 </div>
 
@@ -470,6 +475,30 @@ function generatePDF() {
     } catch(err) { alert('Errore PDF: '+err.message); }
     btn.innerHTML='📄 Scarica PDF'; btn.disabled=false;
   },120);
+}
+
+function salvaBozza() {
+  try {
+    const encoded = btoa(encodeURIComponent(JSON.stringify(state)));
+    const url = location.href.split('#')[0] + '#' + encoded;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('draftBtn');
+      const hint = document.getElementById('draftHint');
+      btn.textContent = '✔ Link copiato!';
+      btn.classList.add('saved');
+      hint.textContent = 'Incolla il link nel browser per riprendere da qui';
+      setTimeout(() => {
+        btn.textContent = '💾 Salva bozza';
+        btn.classList.remove('saved');
+        hint.textContent = 'Copia il link e riaprilo per riprendere da qui';
+      }, 3000);
+    }).catch(() => {
+      // Fallback se clipboard non disponibile
+      const encoded = btoa(encodeURIComponent(JSON.stringify(state)));
+      const url = location.href.split('#')[0] + '#' + encoded;
+      prompt('Copia questo link per riprendere la bozza:', url);
+    });
+  } catch(e) { alert('Errore nel salvataggio: ' + e.message); }
 }
 
 function nuovaSett() {
