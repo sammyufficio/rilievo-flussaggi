@@ -131,7 +131,7 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 
 <div class="header">
   <h1>Rilievo Flussaggi Settimanale</h1>
-  <p>Tranitalia IMC AV – Gianturco, Napoli</p>
+  <p>Trenitalia IMC AV – Gianturco, Napoli</p>
   <div class="hdr-row">
     <div class="hdr-field">
       <label>Settimana</label>
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 function buildText() {
   const w=state.week||'?', mo=state.month||'?';
   let t=`RILIEVO FLUSSAGGI – Settimana ${w} | ${mo}\n`;
-  t+=`Stabilimento: Tranitalia IMC AV – Gianturco, Napoli\n`;
+  t+=`Stabilimento: Trenitalia IMC AV – Gianturco, Napoli\n`;
   t+=`Esportato: ${new Date().toLocaleString('it-IT')}\n`;
   t+='─'.repeat(48)+'\n\n';
   let tot=0;
@@ -400,7 +400,7 @@ function generatePDF() {
       doc.setFontSize(12); doc.setFont('helvetica','bold');
       doc.text('RILIEVO FLUSSAGGI SETTIMANALE',ML,10);
       doc.setFontSize(7.5); doc.setFont('helvetica','normal');
-      doc.text('Tranitalia IMC AV – Gianturco, Napoli',ML,16);
+      doc.text('Trenitalia IMC AV – Gianturco, Napoli',ML,16);
       doc.text(`Settimana ${w}  |  ${mo}  |  Esportato: ${dateStr}`,ML,21.5);
       y=30;
 
@@ -467,7 +467,7 @@ function generatePDF() {
       doc.setFillColor(238,237,232);
       doc.rect(0,PH-10,PW,10,'F');
       doc.setTextColor(140,140,138); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
-      doc.text(`Tranitalia IMC AV – Gianturco, Napoli  |  Settimana ${w} – ${mo}  |  ${dateStr}`,PW/2,PH-4,{align:'center'});
+      doc.text(`Trenitalia IMC AV – Gianturco, Napoli  |  Settimana ${w} – ${mo}  |  ${dateStr}`,PW/2,PH-4,{align:'center'});
 
       doc.save(`Rilievo_Flussaggi_Sett${w}_${mo}.pdf`);
     } catch(err) { alert('Errore PDF: '+err.message); }
