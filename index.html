@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rilievo Flussaggi – IMC AV Gianturco</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --font: -apple-system, 'Segoe UI', sans-serif;
+  --blue: #185FA5; --blue-light: #E6F1FB; --blue-mid: #378ADD;
+  --teal: #0F6E56; --teal-light: #E1F5EE;
+  --gray: #444441; --gray-light: #F1EFE8; --gray-mid: #B4B2A9;
+  --border: rgba(0,0,0,0.11);
+  --red: #A32D2D;
+}
+body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size: 15px; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--blue); color: white; padding: 14px 16px 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,50,.2); }
+.header h1 { font-size: 14px; font-weight: 700; }
+.header p  { font-size: 11px; opacity: .75; margin-top: 1px; }
+.hdr-row { display: flex; gap: 10px; margin-top: 10px; align-items: flex-end; }
+.hdr-field { display: flex; flex-direction: column; gap: 3px; }
+.hdr-field label { font-size: 10px; opacity: .7; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.hdr-field select {
+  font-family: var(--font); font-size: 13px; padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,.3); border-radius: 7px;
+  background: rgba(255,255,255,.15); color: white;
+  -webkit-appearance: none; appearance: none;
+}
+.hdr-field select option { color: #1a1a18; background: white; }
+.progress-wrap { background: rgba(255,255,255,.18); border-radius: 4px; height: 5px; margin-top: 10px; overflow: hidden; }
+.progress-fill { background: #9FE1CB; height: 100%; border-radius: 4px; transition: width .35s; }
+.progress-lbl { font-size: 10px; opacity: .7; margin-top: 3px; }
+
+/* SECTION */
+.section { margin: 12px 12px 0; }
+.section-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 8px 8px 0 0;
+  border-bottom: 2px solid;
+}
+.section-hdr-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; flex: 1; line-height: 1.35; }
+.section-badge { font-size: 10px; color: white; border-radius: 20px; padding: 2px 8px; font-weight: 700; margin-left: 8px; flex-shrink: 0; }
+
+/* POINT CARD */
+.point-card {
+  background: white; border-left: 0.5px solid var(--border); border-right: 0.5px solid var(--border);
+  padding: 11px 13px; margin-bottom: 1px;
+}
+.point-card:last-of-type { border-radius: 0 0 8px 8px; border-bottom: 0.5px solid var(--border); margin-bottom: 12px; }
+
+.pc-header { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.pc-num {
+  min-width: 24px; height: 24px; border-radius: 50%;
+  background: var(--gray-light); color: var(--gray);
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pc-num.done { background: var(--teal-light); color: var(--teal); }
+.pc-fixed-tag { font-size: 10px; font-weight: 600; background: #FAEEDA; color: #854F0B; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
+.pc-remove { background: none; border: none; color: var(--gray-mid); font-size: 20px; cursor: pointer; padding: 0 2px; line-height: 1; margin-left: auto; }
+
+/* CODE ROW */
+.code-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.code-badge { font-size: 13px; font-weight: 700; padding: 6px 12px; background: var(--gray-light); border-radius: 7px; color: var(--gray); }
+.tipo-badge { font-size: 12px; font-weight: 600; padding: 6px 10px; background: var(--teal-light); border-radius: 7px; color: var(--teal); }
+.code-input {
+  flex: 1; max-width: 110px; font-family: var(--font); font-size: 13px; padding: 6px 10px;
+  border: 0.5px solid var(--border); border-radius: 7px; background: #fafaf8; color: #1a1a18;
+}
+.code-input:focus { outline: none; border-color: var(--blue-mid); background: var(--blue-light); }
+.type-select {
+  flex: 1; font-family: var(--font); font-size: 12px; padding: 6px 8px;
+  border: 0.5px solid var(--border); border-radius: 7px; background: #fafaf8; color: #1a1a18;
+}
+.type-select:focus { outline: none; border-color: var(--blue-mid); }
+
+/* FLUSH */
+.flush-btn {
+  width: 100%; padding: 8px; border: 0.5px solid var(--border); border-radius: 7px;
+  background: #fafaf8; font-family: var(--font); font-size: 13px; color: var(--gray);
+  cursor: pointer; text-align: center; transition: background .12s; margin-bottom: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.flush-btn.done { background: var(--teal-light); color: var(--teal); border-color: #9FE1CB; font-weight: 700; }
+
+/* NOTE */
+.note-lbl { font-size: 10px; color: var(--gray-mid); margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.note-input {
+  width: 100%; font-family: var(--font); font-size: 13px;
+  padding: 7px 10px; border: 0.5px solid var(--border); border-radius: 7px;
+  background: #fafaf8; resize: none; height: 50px; color: #1a1a18;
+}
+.note-input:focus { outline: none; border-color: var(--gray-mid); }
+
+/* ADD BTN */
+.add-btn {
+  width: 100%; padding: 10px; border: 1.5px dashed var(--gray-mid); border-radius: 8px;
+  background: transparent; font-family: var(--font); font-size: 13px; color: var(--gray);
+  cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.add-btn:active { background: var(--gray-light); }
+
+/* SUBMIT */
+.submit-wrap { padding: 14px 12px 40px; display: flex; flex-direction: column; gap: 10px; }
+.btn-main { width:100%; padding:14px; background:var(--blue); color:white; border:none; border-radius:10px; font-family:var(--font); font-size:15px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.btn-main:active { background:#0C447C; }
+.btn-sec { width:100%; padding:12px; background:white; color:var(--blue); border:1.5px solid var(--blue); border-radius:10px; font-family:var(--font); font-size:14px; font-weight:600; cursor:pointer; }
+
+/* MODAL */
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:999; align-items:flex-end; }
+.modal-bg.open { display:flex; }
+.modal-box { background:white; border-radius:20px 20px 0 0; padding:20px 16px 36px; width:100%; }
+.modal-title { font-size:16px; font-weight:700; margin-bottom:4px; }
+.modal-sub { font-size:12px; color:var(--gray-mid); margin-bottom:14px; }
+.modal-close { float:right; background:none; border:none; font-size:24px; color:var(--gray); cursor:pointer; line-height:1; }
+.summary-box { background:#f0efe9; border-radius:10px; padding:12px; font-size:11px; line-height:1.75; max-height:210px; overflow-y:auto; font-family:'Courier New',monospace; white-space:pre-wrap; word-break:break-word; }
+.modal-btns { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+.btn-pdf { width:100%; padding:14px; background:var(--red); color:white; border:none; border-radius:10px; font-family:var(--font); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-pdf:active { background:#791F1F; }
+.btn-copy { width:100%; padding:12px; background:var(--teal-light); color:var(--teal); border:none; border-radius:10px; font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer; }
+.btn-copy.copied { background:#EAF3DE; color:#3B6D11; }
+.spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Rilievo Flussaggi Settimanale</h1>
+  <p>Tranitalia IMC AV – Gianturco, Napoli</p>
+  <div class="hdr-row">
+    <div class="hdr-field">
+      <label>Settimana</label>
+      <select id="hdr-week">
+        <option value="">—</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option>
+      </select>
+    </div>
+    <div class="hdr-field">
+      <label>Mese</label>
+      <select id="hdr-month">
+        <option value="">—</option>
+        <option>Gennaio</option><option>Febbraio</option><option>Marzo</option>
+        <option>Aprile</option><option>Maggio</option><option>Giugno</option>
+        <option>Luglio</option><option>Agosto</option><option>Settembre</option>
+        <option>Ottobre</option><option>Novembre</option><option>Dicembre</option>
+      </select>
+    </div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-lbl" id="progressLbl">0 / 20 punti completati</div>
+</div>
+
+<div id="app"></div>
+
+<div class="submit-wrap">
+  <button class="btn-main" onclick="openExport()">📤 Chiudi settimana ed esporta</button>
+  <button class="btn-sec" onclick="nuovaSett()">🔄 Nuova settimana</button>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">📋 Riepilogo settimana</div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="summary-box" id="summaryBox"></div>
+    <div class="modal-btns">
+      <button class="btn-pdf" id="pdfBtn" onclick="generatePDF()">📄 Scarica PDF</button>
+      <button class="btn-copy" id="copyBtn" onclick="copyText()">📋 Copia testo</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const TIPI = ['— tipo —','Lavabo','Rubinetto','Soffione','Doccia di emergenza','Lavaocchi','Bocchetta'];
+
+// 11 macroaree, ogni punto ha: id, macro, fisso(bool), code(fisso o editabile), tipo(fisso o editabile)
+const MACRO = [
+  { id:0, name:'Tunnel di lavaggio lato Roma',                                                                            color:'#185FA5', bg:'#ddeaf9' },
+  { id:1, name:'Palazzina "Bianca", OML, Uffici Manufatto CGT e depositi, FAP coperto, FAP scoperto, Depuratore e aiuole',color:'#0F6E56', bg:'#d6f0e7' },
+  { id:2, name:'Palazzina rossa',                                                                                          color:'#7C3500', bg:'#fce9d6' },
+  { id:3, name:'Rotonda uffici, Mensa, Rotonda spogliatoi ditte, Aiuole',                                                  color:'#533AB7', bg:'#eae8fc' },
+  { id:4, name:'Platea lavaggio lato Salerno',                                                                             color:'#185FA5', bg:'#ddeaf9' },
+  { id:5, name:'Magazzini FS, Uffici MAV, Binari MAV1, Binari MAV2, Binari fascio traccia, Tornio',                       color:'#0F6E56', bg:'#d6f0e7' },
+  { id:6, name:'Fascio Gianturco',                                                                                         color:'#7C3500', bg:'#fce9d6' },
+  { id:7, name:'Magazzino IA, Locale OCA, Container spogliatoio Mercitalia',                                               color:'#533AB7', bg:'#eae8fc' },
+  { id:8, name:'Portineria',                                                                                               color:'#185FA5', bg:'#ddeaf9' },
+  { id:9, name:'Centrale idrica',                                                                                          color:'#0F6E56', bg:'#d6f0e7' },
+  { id:10,name:'Centrale Termica',                                                                                         color:'#7C3500', bg:'#fce9d6' },
+];
+
+// Punti di partenza: fisso=true → non eliminabile; codeFixed/tipoFixed → campi bloccati
+// Per i punti "a scelta" code e tipo sono editabili, partono vuoti
+const INITIAL_POINTS = [
+  // Macro 0 – Tunnel
+  { id:'p1',  macro:0, fisso:true,  code:'D45',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
+  // Macro 1 – Palazzina bianca (1 obbligato + 3 a scelta)
+  { id:'p2',  macro:1, fisso:true,  code:'D42',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
+  { id:'p3',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p4',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p5',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 2 – Palazzina rossa (3 a scelta)
+  { id:'p6',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p7',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p8',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 3 – Rotonda uffici (2 a scelta)
+  { id:'p9',  macro:3, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p10', macro:3, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 4 – Platea lavaggio lato Salerno
+  { id:'p11', macro:4, fisso:true,  code:'D44',   codeFixed:true,  tipo:'Lavaocchi',           tipoFixed:true  },
+  // Macro 5 – Magazzini FS (3 a scelta)
+  { id:'p12', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p13', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  { id:'p14', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 6 – Fascio Gianturco (1 a scelta)
+  { id:'p15', macro:6, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 7 – Magazzino IA
+  { id:'p16', macro:7, fisso:true,  code:'E48',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
+  // Macro 8 – Portineria
+  { id:'p17', macro:8, fisso:true,  code:'D46.4', codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
+  // Macro 9 – Centrale idrica
+  { id:'p18', macro:9, fisso:true,  code:'F0.3',  codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
+  { id:'p19', macro:9, fisso:true,  code:'F0.4',  codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
+  // Macro 10 – Centrale Termica
+  { id:'p20', macro:10,fisso:true,  code:'BOILER',codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
+];
+
+let state = loadState();
+
+function loadState() {
+  try { const s = localStorage.getItem('rv3'); if(s) return JSON.parse(s); } catch(e) {}
+  return buildInitial();
+}
+function buildInitial() {
+  return {
+    points: INITIAL_POINTS.map(p => ({ ...p, flusso:false, note:'' })),
+    eid: 100, week:'', month:''
+  };
+}
+function save() { try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {} }
+
+function isDone(p) {
+  return p.code && p.code.trim() &&
+         p.tipo && p.tipo.trim() && !p.tipo.startsWith('—') &&
+         p.flusso;
+}
+
+function gIdx(id) { return state.points.findIndex(p=>p.id===id)+1; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function upd(id, field, val) {
+  const p = state.points.find(x=>x.id===id); if(!p) return;
+  p[field]=val; save(); updateProgress(); refreshNum(id);
+}
+function toggleFlush(id) {
+  const p = state.points.find(x=>x.id===id); if(!p) return;
+  p.flusso=!p.flusso; save();
+  const btn = document.querySelector('#card-'+id+' .flush-btn');
+  if(btn){ btn.classList.toggle('done',p.flusso); btn.textContent=p.flusso?'✔ Flussaggio eseguito':'Tocca per confermare flussaggio'; }
+  updateProgress(); refreshNum(id);
+}
+function refreshNum(id) {
+  const p=state.points.find(x=>x.id===id);
+  const el=document.querySelector('#card-'+id+' .pc-num');
+  if(el) el.classList.toggle('done',isDone(p));
+}
+function updateProgress() {
+  const done=state.points.filter(isDone).length, tot=state.points.length;
+  const pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressLbl').textContent=`${done} / ${tot} punti completati (${pct}%)`;
+}
+
+function render() {
+  document.getElementById('hdr-week').value=state.week||'';
+  document.getElementById('hdr-month').value=state.month||'';
+  let html='';
+  MACRO.forEach(m=>{
+    const pts=state.points.filter(p=>p.macro===m.id);
+    if(!pts.length) return;
+    html+=`<div class="section">
+      <div class="section-hdr" style="color:${m.color};background:${m.bg};border-bottom-color:${m.color}">
+        <span class="section-hdr-name">${esc(m.name)}</span>
+        <span class="section-badge" style="background:${m.color}">${pts.length}</span>
+      </div>`;
+    pts.forEach(p=>{ html+=renderPoint(p); });
+    html+=`<button class="add-btn" onclick="addPoint(${m.id})">＋ Aggiungi punto</button></div>`;
+  });
+  document.getElementById('app').innerHTML=html;
+  updateProgress();
+}
+
+function renderPoint(p) {
+  const done=isDone(p);
+  return `<div class="point-card" id="card-${p.id}">
+    <div class="pc-header">
+      <div class="pc-num${done?' done':''}">${gIdx(p.id)}</div>
+      ${p.fisso && p.codeFixed ? `<span class="pc-fixed-tag">Fisso</span>` : ''}
+      ${!p.fisso ? `<button class="pc-remove" onclick="removePoint('${p.id}')">✕</button>` : ''}
+    </div>
+    <div class="code-row">
+      <span style="font-size:11px;color:var(--gray-mid);font-weight:600;min-width:48px">Codice</span>
+      ${p.codeFixed
+        ? `<span class="code-badge">${esc(p.code)}</span>`
+        : `<input class="code-input" placeholder="es. D45" value="${esc(p.code)}" oninput="upd('${p.id}','code',this.value)">`}
+      ${p.tipoFixed
+        ? `<span class="tipo-badge">${esc(p.tipo)}</span>`
+        : `<select class="type-select" onchange="upd('${p.id}','tipo',this.value)">${TIPI.map(t=>`<option value="${t.startsWith('—')?'':t}" ${(p.tipo===t||(p.tipo===''&&t.startsWith('—')))?'selected':''}>${t}</option>`).join('')}</select>`}
+    </div>
+    <button class="flush-btn${p.flusso?' done':''}" onclick="toggleFlush('${p.id}')">
+      ${p.flusso?'✔ Flussaggio eseguito':'Tocca per confermare flussaggio'}
+    </button>
+    <div class="note-lbl">Note / Anomalie</div>
+    <textarea class="note-input" placeholder="Osservazioni, cloro, anomalie..." oninput="upd('${p.id}','note',this.value)">${esc(p.note)}</textarea>
+  </div>`;
+}
+
+function addPoint(macroId) {
+  state.eid++;
+  state.points.push({ id:'e'+state.eid, macro:macroId, fisso:false, code:'', codeFixed:false, tipo:'', tipoFixed:false, flusso:false, note:'' });
+  save(); render();
+  setTimeout(()=>{ const el=document.getElementById('card-e'+state.eid); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },80);
+}
+function removePoint(id) {
+  if(!confirm('Rimuovere questo punto?')) return;
+  state.points=state.points.filter(p=>p.id!==id); save(); render();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('hdr-week').addEventListener('change',e=>{ state.week=e.target.value; save(); });
+  document.getElementById('hdr-month').addEventListener('change',e=>{ state.month=e.target.value; save(); });
+});
+
+/* ── EXPORT ── */
+function buildText() {
+  const w=state.week||'?', mo=state.month||'?';
+  let t=`RILIEVO FLUSSAGGI – Settimana ${w} | ${mo}\n`;
+  t+=`Stabilimento: Tranitalia IMC AV – Gianturco, Napoli\n`;
+  t+=`Esportato: ${new Date().toLocaleString('it-IT')}\n`;
+  t+='─'.repeat(48)+'\n\n';
+  let tot=0;
+  MACRO.forEach(m=>{
+    const pts=state.points.filter(p=>p.macro===m.id); if(!pts.length) return;
+    t+=`▸ ${m.name}\n`;
+    pts.forEach(p=>{
+      const d=isDone(p); if(d) tot++;
+      t+=`  ${gIdx(p.id)}. [${d?'✔':'○'}]  Cod: ${p.code||'—'}  |  Tipo: ${p.tipo||'—'}  |  Flush: ${p.flusso?'OK':'—'}\n`;
+      if(p.note) t+=`       Note: ${p.note}\n`;
+    });
+    t+='\n';
+  });
+  t+='─'.repeat(48)+'\n';
+  t+=`COMPLETATI: ${tot} / ${state.points.length}\n`;
+  return t;
+}
+
+function openExport() {
+  const w=state.week||'?', mo=state.month||'?';
+  document.getElementById('modalSub').textContent=`Settimana ${w} – ${mo}`;
+  document.getElementById('summaryBox').textContent=buildText();
+  const cb=document.getElementById('copyBtn'); cb.textContent='📋 Copia testo'; cb.classList.remove('copied');
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+document.getElementById('modalBg').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+function copyText() {
+  navigator.clipboard.writeText(buildText()).then(()=>{
+    const b=document.getElementById('copyBtn'); b.textContent='✔ Copiato!'; b.classList.add('copied');
+    setTimeout(()=>{ b.textContent='📋 Copia testo'; b.classList.remove('copied'); },2000);
+  });
+}
+
+/* ── PDF ── */
+function generatePDF() {
+  const btn=document.getElementById('pdfBtn');
+  btn.innerHTML='<span class="spinner"></span> Generazione...'; btn.disabled=true;
+  setTimeout(()=>{
+    try {
+      const { jsPDF }=window.jspdf;
+      const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+      const PW=doc.internal.pageSize.getWidth(), PH=doc.internal.pageSize.getHeight();
+      const ML=13, MR=13, CW=PW-ML-MR;
+      let y=0;
+      const w=state.week||'?', mo=state.month||'?';
+      const dateStr=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+      function chkPage(need) { if(y+need>PH-12) { doc.addPage(); y=14; } }
+      function hexRGB(h) { h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+
+      // Header
+      doc.setFillColor(24,95,165);
+      doc.rect(0,0,PW,26,'F');
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(12); doc.setFont('helvetica','bold');
+      doc.text('RILIEVO FLUSSAGGI SETTIMANALE',ML,10);
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+      doc.text('Tranitalia IMC AV – Gianturco, Napoli',ML,16);
+      doc.text(`Settimana ${w}  |  ${mo}  |  Esportato: ${dateStr}`,ML,21.5);
+      y=30;
+
+      // Completamento
+      const done=state.points.filter(isDone).length, tot=state.points.length;
+      doc.setFillColor(214,240,231);
+      doc.roundedRect(ML,y,CW,8,2,2,'F');
+      doc.setTextColor(15,110,86); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+      doc.text(`Completamento: ${done} / ${tot} punti (${Math.round(done/tot*100)}%)`,ML+3,y+5.5);
+      y+=12;
+
+      MACRO.forEach(m=>{
+        const pts=state.points.filter(p=>p.macro===m.id); if(!pts.length) return;
+        chkPage(12+pts.length*16);
+        const [cr,cg,cb]=hexRGB(m.color);
+        const [br,bg2,bb]=hexRGB(m.bg);
+
+        // Macroarea header
+        doc.setFillColor(br,bg2,bb);
+        doc.roundedRect(ML,y,CW,8,1.5,1.5,'F');
+        doc.setDrawColor(cr,cg,cb); doc.setLineWidth(0.5);
+        doc.line(ML,y+8,ML+CW,y+8);
+        doc.setTextColor(cr,cg,cb); doc.setFontSize(6.5); doc.setFont('helvetica','bold');
+        const mLines=doc.splitTextToSize(m.name.toUpperCase(),CW-4);
+        doc.text(mLines[0],ML+3,y+5.5);
+        y+=10;
+
+        pts.forEach(p=>{
+          chkPage(15);
+          const d=isDone(p);
+          // row bg
+          doc.setFillColor(d?237:250,d?247:250,d?242:248);
+          doc.roundedRect(ML,y,CW,13,1,1,'F');
+          // left accent
+          const [ar,ag,ab]=d?[15,110,86]:[180,180,180];
+          doc.setFillColor(ar,ag,ab); doc.rect(ML,y,1.8,13,'F');
+          // number
+          doc.setFillColor(ar,ag,ab); doc.circle(ML+7,y+6.5,3,'F');
+          doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont('helvetica','bold');
+          doc.text(String(gIdx(p.id)),ML+7,y+8.8,{align:'center'});
+          // code + tipo
+          doc.setTextColor(26,26,24); doc.setFontSize(8); doc.setFont('helvetica','bold');
+          doc.text(`${p.code||'—'}`,ML+12,y+5.5);
+          doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,78);
+          doc.text(`${p.tipo||'—'}  |  Flush: ${p.flusso?'OK':'—'}`,ML+12,y+10);
+          // note
+          if(p.note){
+            const nl=doc.splitTextToSize('Note: '+p.note, CW-40);
+            doc.setFontSize(6.5); doc.setTextColor(100,100,98); doc.setFont('helvetica','italic');
+            doc.text(nl[0],PW-MR-58,y+10,{align:'right',maxWidth:55});
+          }
+          // done badge
+          if(d){
+            doc.setFillColor(15,110,86); doc.roundedRect(PW-MR-14,y+2,12,4.5,1,1,'F');
+            doc.setTextColor(255,255,255); doc.setFontSize(5.5); doc.setFont('helvetica','bold');
+            doc.text('OK',PW-MR-8,y+5.2,{align:'center'});
+          }
+          y+=14;
+        });
+        y+=3;
+      });
+
+      // Footer
+      doc.setFillColor(238,237,232);
+      doc.rect(0,PH-10,PW,10,'F');
+      doc.setTextColor(140,140,138); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
+      doc.text(`Tranitalia IMC AV – Gianturco, Napoli  |  Settimana ${w} – ${mo}  |  ${dateStr}`,PW/2,PH-4,{align:'center'});
+
+      doc.save(`Rilievo_Flussaggi_Sett${w}_${mo}.pdf`);
+    } catch(err) { alert('Errore PDF: '+err.message); }
+    btn.innerHTML='📄 Scarica PDF'; btn.disabled=false;
+  },120);
+}
+
+function nuovaSett() {
+  if(!confirm('Iniziare nuova settimana? I dati saranno cancellati.')) return;
+  localStorage.removeItem('rv3'); state=buildInitial(); save(); render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+render();
+</script>
+</body>
+</html>
