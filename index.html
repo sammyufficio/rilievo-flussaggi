@@ -114,6 +114,7 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 .btn-pdf:active { background:#791F1F; }
 .btn-copy { width:100%; padding:12px; background:var(--teal-light); color:var(--teal); border:none; border-radius:10px; font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer; }
 .btn-copy.copied { background:#EAF3DE; color:#3B6D11; }
+
 .spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
@@ -224,7 +225,9 @@ const INITIAL_POINTS = [
 let state = loadState();
 
 function loadState() {
-  // 1. Prova dall'URL hash (priorità massima — sopravvive alla chiusura del browser)
+  // 1. localStorage ha priorità — se c'è, è lo stato più recente (include reset nuova settimana)
+  try { const s = localStorage.getItem('rv3'); if(s) return JSON.parse(s); } catch(e) {}
+  // 2. Fallback: hash nell'URL (bozza salvata manualmente con "Salva bozza")
   try {
     const hash = location.hash.slice(1);
     if (hash) {
@@ -232,8 +235,6 @@ function loadState() {
       if (s && s.points) return s;
     }
   } catch(e) {}
-  // 2. Fallback localStorage
-  try { const s = localStorage.getItem('rv3'); if(s) return JSON.parse(s); } catch(e) {}
   return buildInitial();
 }
 function buildInitial() {
@@ -474,7 +475,11 @@ function generatePDF() {
 
 function nuovaSett() {
   if(!confirm('Iniziare nuova settimana? I dati saranno cancellati.')) return;
-  localStorage.removeItem('rv3'); history.replaceState(null,'',location.pathname+location.search); state=buildInitial(); save(); render();
+  state = buildInitial();
+  try { localStorage.removeItem('rv3'); } catch(e) {}
+  try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {}
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+  render();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
