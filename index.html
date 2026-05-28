@@ -399,16 +399,10 @@ function generatePDF() {
       doc.text('RILIEVO FLUSSAGGI SETTIMANALE',ML,10);
       doc.setFontSize(7.5); doc.setFont('helvetica','normal');
       doc.text('Trenitalia IMC AV – Gianturco, Napoli',ML,16);
-      doc.text(`Settimana ${w}  |  ${mo}  |  Esportato: ${dateStr}`,ML,21.5);
+      doc.text(`Settimana ${w}  |  ${mo}`,ML,21.5);
       y=30;
 
-      // Completamento
-      const done=state.points.filter(isDone).length, tot=state.points.length;
-      doc.setFillColor(214,240,231);
-      doc.roundedRect(ML,y,CW,8,2,2,'F');
-      doc.setTextColor(15,110,86); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
-      doc.text(`Completamento: ${done} / ${tot} punti (${Math.round(done/tot*100)}%)`,ML+3,y+5.5);
-      y+=12;
+      y+=0;
 
       MACRO.forEach(m=>{
         const pts=state.points.filter(p=>p.macro===m.id); if(!pts.length) return;
@@ -443,18 +437,12 @@ function generatePDF() {
           doc.setTextColor(26,26,24); doc.setFontSize(8); doc.setFont('helvetica','bold');
           doc.text(`${p.code||'—'}`,ML+12,y+5.5);
           doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,78);
-          doc.text(`${p.tipo||'—'}  |  Flush: ${p.flusso?'OK':'—'}`,ML+12,y+10);
+          doc.text(`${p.tipo||'—'}  |  Flussaggio: ${p.flusso?'✔':'—'}`,ML+12,y+10);
           // note
           if(p.note){
             const nl=doc.splitTextToSize('Note: '+p.note, CW-40);
-            doc.setFontSize(6.5); doc.setTextColor(100,100,98); doc.setFont('helvetica','italic');
+            doc.setFontSize(7.5); doc.setTextColor(40,40,38); doc.setFont('helvetica','bold');
             doc.text(nl[0],PW-MR-58,y+10,{align:'right',maxWidth:55});
-          }
-          // done badge
-          if(d){
-            doc.setFillColor(15,110,86); doc.roundedRect(PW-MR-14,y+2,12,4.5,1,1,'F');
-            doc.setTextColor(255,255,255); doc.setFontSize(5.5); doc.setFont('helvetica','bold');
-            doc.text('OK',PW-MR-8,y+5.2,{align:'center'});
           }
           y+=14;
         });
@@ -465,7 +453,7 @@ function generatePDF() {
       doc.setFillColor(238,237,232);
       doc.rect(0,PH-10,PW,10,'F');
       doc.setTextColor(140,140,138); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
-      doc.text(`Trenitalia IMC AV – Gianturco, Napoli  |  Settimana ${w} – ${mo}  |  ${dateStr}`,PW/2,PH-4,{align:'center'});
+      doc.text(`Trenitalia IMC AV – Gianturco, Napoli  |  Settimana ${w} – ${mo}`,PW/2,PH-4,{align:'center'});
 
       doc.save(`Rilievo_Flussaggi_Sett${w}_${mo}.pdf`);
     } catch(err) { alert('Errore PDF: '+err.message); }
