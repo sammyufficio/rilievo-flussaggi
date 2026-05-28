@@ -13,7 +13,6 @@
   --gray: #444441; --gray-light: #F1EFE8; --gray-mid: #B4B2A9;
   --border: rgba(0,0,0,0.11);
   --red: #A32D2D;
-  --orange: #B85C00;
 }
 body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size: 15px; min-height: 100vh; }
 
@@ -95,20 +94,12 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 }
 .note-input:focus { outline: none; border-color: var(--gray-mid); }
 
+
 /* SUBMIT */
 .submit-wrap { padding: 14px 12px 40px; display: flex; flex-direction: column; gap: 10px; }
 .btn-main { width:100%; padding:14px; background:var(--blue); color:white; border:none; border-radius:10px; font-family:var(--font); font-size:15px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .btn-main:active { background:#0C447C; }
 .btn-sec { width:100%; padding:12px; background:white; color:var(--blue); border:1.5px solid var(--blue); border-radius:10px; font-family:var(--font); font-size:14px; font-weight:600; cursor:pointer; }
-.btn-sync {
-  width:100%; padding:13px; background:white; color:var(--orange);
-  border:1.5px solid var(--orange); border-radius:10px; font-family:var(--font);
-  font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center;
-  justify-content:center; gap:8px; -webkit-tap-highlight-color:transparent;
-}
-.btn-sync:active { background:#FFF3E6; }
-.btn-sync.synced { background:#E6F5EE; color:var(--teal); border-color:var(--teal); }
-.sync-status { font-size: 11px; text-align: center; color: var(--gray-mid); min-height: 16px; }
 
 /* MODAL */
 .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:999; align-items:flex-end; }
@@ -124,27 +115,7 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 .btn-copy { width:100%; padding:12px; background:var(--teal-light); color:var(--teal); border:none; border-radius:10px; font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer; }
 .btn-copy.copied { background:#EAF3DE; color:#3B6D11; }
 
-/* SETUP MODAL */
-.setup-field { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
-.setup-field label { font-size:11px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.4px; }
-.setup-field input {
-  font-family:var(--font); font-size:13px; padding:9px 12px;
-  border:1px solid var(--border); border-radius:8px; background:#fafaf8; color:#1a1a18;
-}
-.setup-field input:focus { outline:none; border-color:var(--blue-mid); background:var(--blue-light); }
-.setup-hint { font-size:10px; color:var(--gray-mid); margin-top:2px; }
-.btn-setup-save { width:100%; padding:13px; background:var(--orange); color:white; border:none; border-radius:10px; font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer; margin-top:4px; }
-
-/* SYNC ALREADY DONE BANNER */
-.synced-banner {
-  display:none; margin:0 12px 8px; background:#E6F5EE; border:1px solid #9FE1CB;
-  border-radius:8px; padding:8px 12px; font-size:11px; color:var(--teal); font-weight:600;
-  align-items:center; gap:6px;
-}
-.synced-banner.visible { display:flex; }
-
-.spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,165,0,.4); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
-.spinner-white { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
+.spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
@@ -176,20 +147,13 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
   <div class="progress-lbl" id="progressLbl">0 / 20 punti completati</div>
 </div>
 
-<div id="syncedBanner" class="synced-banner">
-  ✅ Settimana già sincronizzata con Google Sheets
-</div>
-
 <div id="app"></div>
 
 <div class="submit-wrap">
   <button class="btn-main" onclick="openExport()">📤 Chiudi settimana ed esporta</button>
-  <button class="btn-sync" id="syncBtn" onclick="syncToSheets()">🔄 Sincronizza con Google Sheets</button>
-  <div class="sync-status" id="syncStatus"></div>
   <button class="btn-sec" onclick="nuovaSett()">🔄 Nuova settimana</button>
 </div>
 
-<!-- Modal riepilogo / PDF -->
 <div class="modal-bg" id="modalBg">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -203,25 +167,11 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
   </div>
 </div>
 
-<!-- Modal setup URL -->
-<div class="modal-bg" id="setupModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeSetup()">✕</button>
-    <div class="modal-title">⚙️ Configura Google Sheets</div>
-    <div class="modal-sub">Incolla l'URL dello script Apps Script che hai creato.</div>
-    <div class="setup-field">
-      <label>URL dello Script</label>
-      <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/..." />
-      <div class="setup-hint">Trovi questo URL dopo aver pubblicato lo script in Google Sheets. Vedi le istruzioni allegate.</div>
-    </div>
-    <button class="btn-setup-save" onclick="saveScriptUrl()">💾 Salva e chiudi</button>
-  </div>
-</div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const TIPI = ['— tipo —','Lavabo','Rubinetto','Soffione','Doccia di emergenza','Lavaocchi','Bocchetta'];
 
+// 11 macroaree, ogni punto ha: id, macro, fisso(bool), code(fisso o editabile), tipo(fisso o editabile)
 const MACRO = [
   { id:0, name:'Tunnel di lavaggio lato Roma',                                                                            color:'#185FA5', bg:'#ddeaf9' },
   { id:1, name:'Palazzina "Bianca", OML, Uffici Manufatto CGT e depositi, FAP coperto, FAP scoperto, Depuratore e aiuole',color:'#0F6E56', bg:'#d6f0e7' },
@@ -236,33 +186,48 @@ const MACRO = [
   { id:10,name:'Centrale Termica',                                                                                         color:'#7C3500', bg:'#fce9d6' },
 ];
 
+// Punti di partenza: fisso=true → non eliminabile; codeFixed/tipoFixed → campi bloccati
+// Per i punti "a scelta" code e tipo sono editabili, partono vuoti
 const INITIAL_POINTS = [
+  // Macro 0 – Tunnel
   { id:'p1',  macro:0, fisso:true,  code:'D45',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
+  // Macro 1 – Palazzina bianca (1 obbligato + 3 a scelta)
   { id:'p2',  macro:1, fisso:true,  code:'D42',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
   { id:'p3',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p4',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p5',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 2 – Palazzina rossa (3 a scelta)
   { id:'p6',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p7',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p8',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 3 – Rotonda uffici (2 a scelta)
   { id:'p9',  macro:3, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p10', macro:3, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 4 – Platea lavaggio lato Salerno
   { id:'p11', macro:4, fisso:true,  code:'D44',   codeFixed:true,  tipo:'Lavaocchi',           tipoFixed:true  },
+  // Macro 5 – Magazzini FS (3 a scelta)
   { id:'p12', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p13', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
   { id:'p14', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 6 – Fascio Gianturco (1 a scelta)
   { id:'p15', macro:6, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
+  // Macro 7 – Magazzino IA
   { id:'p16', macro:7, fisso:true,  code:'E48',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
+  // Macro 8 – Portineria
   { id:'p17', macro:8, fisso:true,  code:'D46.4', codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
+  // Macro 9 – Centrale idrica
   { id:'p18', macro:9, fisso:true,  code:'F0.3',  codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
   { id:'p19', macro:9, fisso:true,  code:'F0.4',  codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
+  // Macro 10 – Centrale Termica
   { id:'p20', macro:10,fisso:true,  code:'BOILER',codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
 ];
 
 let state = loadState();
 
 function loadState() {
+  // 1. localStorage ha priorità — se c'è, è lo stato più recente (include reset nuova settimana)
   try { const s = localStorage.getItem('rv3'); if(s) return JSON.parse(s); } catch(e) {}
+  // 2. Fallback: hash nell'URL (bozza salvata manualmente con "Salva bozza")
   try {
     const hash = location.hash.slice(1);
     if (hash) {
@@ -275,8 +240,7 @@ function loadState() {
 function buildInitial() {
   return {
     points: INITIAL_POINTS.map(p => ({ ...p, flusso:false, note:'' })),
-    eid: 100, week:'', month:'',
-    syncedKeys: []   // ← chiavi settimane già sincronizzate: "Sett1_Gennaio_2025"
+    eid: 100, week:'', month:''
   };
 }
 function save() {
@@ -285,37 +249,6 @@ function save() {
     history.replaceState(null, '', '#' + encoded);
   } catch(e) {}
   try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {}
-}
-
-/* ── chiave univoca per la settimana corrente ── */
-function currentKey() {
-  const yr = new Date().getFullYear();
-  return `Sett${state.week||'?'}_${state.month||'?'}_${yr}`;
-}
-
-function isSynced() {
-  if (!state.syncedKeys) state.syncedKeys = [];
-  return state.syncedKeys.includes(currentKey());
-}
-
-function markSynced() {
-  if (!state.syncedKeys) state.syncedKeys = [];
-  if (!state.syncedKeys.includes(currentKey())) state.syncedKeys.push(currentKey());
-  save();
-}
-
-function updateSyncBanner() {
-  const b = document.getElementById('syncedBanner');
-  const btn = document.getElementById('syncBtn');
-  if (isSynced()) {
-    b.classList.add('visible');
-    btn.classList.add('synced');
-    btn.textContent = '✅ Già sincronizzata';
-  } else {
-    b.classList.remove('visible');
-    btn.classList.remove('synced');
-    btn.innerHTML = '🔄 Sincronizza con Google Sheets';
-  }
 }
 
 function isDone(p) {
@@ -367,7 +300,6 @@ function render() {
   });
   document.getElementById('app').innerHTML=html;
   updateProgress();
-  updateSyncBanner();
 }
 
 function renderPoint(p) {
@@ -394,9 +326,12 @@ function renderPoint(p) {
   </div>`;
 }
 
+
+
+
 document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('hdr-week').addEventListener('change',e=>{ state.week=e.target.value; save(); updateSyncBanner(); });
-  document.getElementById('hdr-month').addEventListener('change',e=>{ state.month=e.target.value; save(); updateSyncBanner(); });
+  document.getElementById('hdr-week').addEventListener('change',e=>{ state.week=e.target.value; save(); });
+  document.getElementById('hdr-month').addEventListener('change',e=>{ state.month=e.target.value; save(); });
 });
 
 /* ── EXPORT ── */
@@ -412,7 +347,7 @@ function buildText() {
     t+=`▸ ${m.name}\n`;
     pts.forEach(p=>{
       const d=isDone(p); if(d) tot++;
-      t+=`  ${gIdx(p.id)}. [${d?'✔':'○'}]  Cod: ${p.code||'—'}  |  Tipo: ${p.tipo||'—'}  |  Flussaggio: ${p.flusso?'✔':'—'}\n`;
+      t+=`  ${gIdx(p.id)}. [${d?'✔':'○'}]  Cod: ${p.code||'—'}  |  Tipo: ${p.tipo||'—'}  |  Flush: ${p.flusso?'OK':'—'}\n`;
       if(p.note) t+=`       Note: ${p.note}\n`;
     });
     t+='\n';
@@ -439,107 +374,10 @@ function copyText() {
   });
 }
 
-/* ── SETUP SCRIPT URL ── */
-function getScriptUrl() {
-  try { return localStorage.getItem('rv3_scriptUrl') || ''; } catch(e) { return ''; }
-}
-function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
-function saveScriptUrl() {
-  const v = document.getElementById('scriptUrlInput').value.trim();
-  if (!v) { alert('Incolla l\'URL prima di salvare.'); return; }
-  try { localStorage.setItem('rv3_scriptUrl', v); } catch(e) {}
-  closeSetup();
-  syncToSheets();
-}
-
-/* ── SYNC ── */
-async function syncToSheets() {
-  const url = getScriptUrl();
-  if (!url) {
-    // Apri modal di setup
-    document.getElementById('scriptUrlInput').value = '';
-    document.getElementById('setupModal').classList.add('open');
-    return;
-  }
-
-  if (isSynced()) {
-    if (!confirm(`Questa settimana (${currentKey().replace(/_/g,' ')}) è già stata sincronizzata.\nVuoi sincronizzare di nuovo sovrascrivendo i dati?`)) return;
-  }
-
-  if (!state.week || !state.month) {
-    alert('Seleziona prima la settimana e il mese prima di sincronizzare.');
-    return;
-  }
-
-  const btn = document.getElementById('syncBtn');
-  const status = document.getElementById('syncStatus');
-  btn.innerHTML = '<span class="spinner"></span> Sincronizzazione in corso...';
-  btn.disabled = true;
-  status.textContent = '';
-
-  // Costruisce le righe da inviare (solo punti completati)
-  const anno = new Date().getFullYear();
-  const rows = [];
-  state.points.forEach(p => {
-    const macroName = MACRO.find(m => m.id === p.macro)?.name || '';
-    rows.push({
-      anno:      anno,
-      mese:      state.month,
-      settimana: state.week,
-      chiave:    currentKey(),
-      numero:    gIdx(p.id),
-      codice:    p.code || '—',
-      tipo:      p.tipo || '—',
-      macroarea: macroName,
-      flussato:  p.flusso ? 'SI' : 'NO',
-      completato: isDone(p) ? 'SI' : 'NO',
-      note:      p.note || ''
-    });
-  });
-
-  const payload = {
-    action: 'sync',
-    chiave: currentKey(),
-    anno,
-    settimana: state.week,
-    mese: state.month,
-    rows
-  };
-
-  try {
-    // Apps Script non accetta POST cross-origin da file locali (CORS).
-    // La soluzione standard è inviare i dati come parametro GET (jsonData) —
-    // Apps Script risponde con JSONP o JSON puro senza preflight.
-    const encoded = encodeURIComponent(JSON.stringify(payload));
-    const getUrl  = `${url}?jsonData=${encoded}`;
-
-    const resp = await fetch(getUrl, { method: 'GET' });
-    const text = await resp.text();
-    let result;
-    try { result = JSON.parse(text); } catch(e) { result = { status: 'error', message: text }; }
-
-    if (result.status === 'ok') {
-      markSynced();
-      updateSyncBanner();
-      status.style.color = 'var(--teal)';
-      status.textContent = `✅ ${result.message || 'Sincronizzato con successo!'}`;
-    } else {
-      status.style.color = 'var(--red)';
-      status.textContent = `⚠️ Errore: ${result.message || 'Risposta non valida dallo script.'}`;
-    }
-  } catch(err) {
-    status.style.color = 'var(--red)';
-    status.textContent = `⚠️ Connessione fallita: ${err.message}`;
-  }
-
-  btn.disabled = false;
-  updateSyncBanner();
-}
-
 /* ── PDF ── */
 function generatePDF() {
   const btn=document.getElementById('pdfBtn');
-  btn.innerHTML='<span class="spinner-white"></span> Generazione...'; btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Generazione...'; btn.disabled=true;
   setTimeout(()=>{
     try {
       const { jsPDF }=window.jspdf;
@@ -548,6 +386,7 @@ function generatePDF() {
       const ML=13, MR=13, CW=PW-ML-MR;
       let y=0;
       const w=state.week||'?', mo=state.month||'?';
+      const dateStr=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
 
       function chkPage(need) { if(y+need>PH-12) { doc.addPage(); y=14; } }
       function hexRGB(h) { h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
@@ -563,12 +402,15 @@ function generatePDF() {
       doc.text(`Settimana ${w}  |  ${mo}`,ML,21.5);
       y=30;
 
+      y+=0;
+
       MACRO.forEach(m=>{
         const pts=state.points.filter(p=>p.macro===m.id); if(!pts.length) return;
         chkPage(12+pts.length*16);
         const [cr,cg,cb]=hexRGB(m.color);
         const [br,bg2,bb]=hexRGB(m.bg);
 
+        // Macroarea header
         doc.setFillColor(br,bg2,bb);
         doc.roundedRect(ML,y,CW,8,1.5,1.5,'F');
         doc.setDrawColor(cr,cg,cb); doc.setLineWidth(0.5);
@@ -581,17 +423,22 @@ function generatePDF() {
         pts.forEach(p=>{
           chkPage(15);
           const d=isDone(p);
+          // row bg
           doc.setFillColor(d?237:250,d?247:250,d?242:248);
           doc.roundedRect(ML,y,CW,13,1,1,'F');
+          // left accent
           const [ar,ag,ab]=d?[15,110,86]:[180,180,180];
           doc.setFillColor(ar,ag,ab); doc.rect(ML,y,1.8,13,'F');
+          // number
           doc.setFillColor(ar,ag,ab); doc.circle(ML+7,y+6.5,3,'F');
           doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont('helvetica','bold');
           doc.text(String(gIdx(p.id)),ML+7,y+8.8,{align:'center'});
+          // code + tipo
           doc.setTextColor(26,26,24); doc.setFontSize(8); doc.setFont('helvetica','bold');
           doc.text(`${p.code||'—'}`,ML+12,y+5.5);
           doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,78);
           doc.text(`${p.tipo||'—'}  |  Flussaggio: ${p.flusso?'✔':'—'}`,ML+12,y+10);
+          // note
           if(p.note){
             const nl=doc.splitTextToSize('Note: '+p.note, CW-40);
             doc.setFontSize(7.5); doc.setTextColor(40,40,38); doc.setFont('helvetica','bold');
@@ -602,6 +449,7 @@ function generatePDF() {
         y+=3;
       });
 
+      // Footer
       doc.setFillColor(238,237,232);
       doc.rect(0,PH-10,PW,10,'F');
       doc.setTextColor(140,140,138); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
@@ -615,9 +463,7 @@ function generatePDF() {
 
 function nuovaSett() {
   if(!confirm('Iniziare nuova settimana? I dati saranno cancellati.')) return;
-  const syncedKeys = state.syncedKeys || [];
   state = buildInitial();
-  state.syncedKeys = syncedKeys; // mantieni storico sync
   try { localStorage.removeItem('rv3'); } catch(e) {}
   try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {}
   try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
