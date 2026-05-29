@@ -462,10 +462,6 @@ function saveScriptUrl() {
 function syncToSheets() {
   const url = getScriptUrl();
 
-  if (isSynced()) {
-    if (!confirm(`Questa settimana (${currentKey().replace(/_/g,' ')}) è già stata sincronizzata.\nVuoi sincronizzare di nuovo sovrascrivendo i dati?`)) return;
-  }
-
   if (!state.week || !state.month) {
     alert('Seleziona prima la settimana e il mese prima di sincronizzare.');
     return;
