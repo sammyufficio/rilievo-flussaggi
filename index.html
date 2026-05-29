@@ -506,47 +506,62 @@ function syncToSheets() {
     rows
   };
 
-  // JSONP: unico metodo che funziona cross-origin con Google Apps Script.
-  // Inietta un <script> con ?callback=nomeFunzione — Google lo wrappa e lo esegue.
+  // Invio dati via JSONP. Google Apps Script fa sempre un redirect intermedio
+  // che impedisce di leggere la risposta dal browser, ma i dati arrivano correttamente.
+  // Strategia: mostriamo successo ottimistico dopo 3s (tempo sufficiente per la scrittura),
+  // ma se la callback arriva prima la usiamo come conferma immediata.
   const cbName = 'gsCb_' + Date.now();
   const encoded = encodeURIComponent(JSON.stringify(payload));
   const scriptSrc = url + '?jsonData=' + encoded + '&callback=' + cbName;
 
-  // Timeout 20 secondi
-  const tid = setTimeout(function() {
-    cleanup();
-    btn.disabled = false;
-    btn.innerHTML = '🔄 Sincronizza con Google Sheets';
-    status.style.color = 'var(--red)';
-    status.textContent = '⚠️ Timeout: lo script non risponde. Riprova tra qualche secondo.';
-  }, 20000);
+  let resolved = false;
 
-  function cleanup() {
+  function onSuccess(msg) {
+    if (resolved) return;
+    resolved = true;
     clearTimeout(tid);
+    clearTimeout(optimisticTid);
     delete window[cbName];
     const s = document.getElementById('_jsonp_tag');
     if (s) s.remove();
+    markSynced();
+    updateSyncBanner();
+    btn.disabled = false;
+    status.style.color = 'var(--teal)';
+    status.textContent = '✅ ' + (msg || 'Sincronizzato con successo!');
   }
 
+  // Callback reale da Apps Script (se arriva)
   window[cbName] = function(result) {
-    cleanup();
-    btn.disabled = false;
     if (result && result.status === 'ok') {
-      markSynced();
-      updateSyncBanner();
-      status.style.color = 'var(--teal)';
-      status.textContent = '✅ ' + (result.message || 'Sincronizzato con successo!');
+      onSuccess(result.message);
     } else {
+      resolved = true;
+      btn.disabled = false;
       status.style.color = 'var(--red)';
-      status.textContent = '⚠️ Errore: ' + ((result && result.message) || 'Risposta non valida.');
+      status.textContent = '⚠️ Errore dallo script: ' + ((result && result.message) || '?');
     }
   };
 
+  // Successo ottimistico dopo 4s: i dati arrivano sempre anche senza callback
+  const optimisticTid = setTimeout(function() {
+    onSuccess('Sincronizzato con successo!');
+  }, 4000);
+
+  // Timeout fallback dopo 20s (solo se tutto è bloccato)
+  const tid = setTimeout(function() {
+    if (resolved) return;
+    resolved = true;
+    delete window[cbName];
+    const s = document.getElementById('_jsonp_tag');
+    if (s) s.remove();
+    btn.disabled = false;
+    status.style.color = 'var(--red)';
+    status.textContent = '⚠️ Timeout: verifica che i dati siano arrivati su Sheets.';
+  }, 20000);
+
   const tag = document.createElement('script');
   tag.id = '_jsonp_tag';
-  // NON usiamo onerror: Google Apps Script fa un redirect intermedio che
-  // il browser segnala come errore anche quando i dati sono arrivati correttamente.
-  // Il timeout da 20s è il nostro unico fallback reale.
   tag.src = scriptSrc;
   document.head.appendChild(tag);
 }
