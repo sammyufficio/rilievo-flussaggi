@@ -186,6 +186,7 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
   <button class="btn-main" onclick="openExport()">📤 Chiudi settimana ed esporta</button>
   <button class="btn-sync" id="syncBtn" onclick="syncToSheets()">🔄 Sincronizza con Google Sheets</button>
   <div class="sync-status" id="syncStatus"></div>
+  <div style="text-align:center;margin-top:-4px"><button onclick="openSetup()" style="background:none;border:none;font-size:11px;color:var(--gray-mid);cursor:pointer;text-decoration:underline">⚙️ Cambia URL script</button></div>
   <button class="btn-sec" onclick="nuovaSett()">🔄 Nuova settimana</button>
 </div>
 
@@ -440,11 +441,15 @@ function copyText() {
 }
 
 /* ── SETUP SCRIPT URL ── */
-const SCRIPT_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbyCzm56vyDgAhuk8DxIh7K7vPaptYJsJ1pk_mSWhCWaX9XPKCJ2V9Ips6FH-Oryfq17Jw/exec';
+const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCzm56vyDgAhuk8DxIh7K7vPaptYJsJ1pk_mSWhCWaX9XPKCJ2V9Ips6FH-Oryfq17Jw/exec';
 function getScriptUrl() {
-  try { return localStorage.getItem('rv3_scriptUrl') || SCRIPT_URL_DEFAULT; } catch(e) { return SCRIPT_URL_DEFAULT; }
+  try { return localStorage.getItem('rv3_scriptUrl') || DEFAULT_SCRIPT_URL; } catch(e) { return DEFAULT_SCRIPT_URL; }
 }
 function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
+function openSetup() {
+  document.getElementById('scriptUrlInput').value = getScriptUrl();
+  document.getElementById('setupModal').classList.add('open');
+}
 function saveScriptUrl() {
   const v = document.getElementById('scriptUrlInput').value.trim();
   if (!v) { alert('Incolla l\'URL prima di salvare.'); return; }
@@ -456,12 +461,6 @@ function saveScriptUrl() {
 /* ── SYNC ── */
 function syncToSheets() {
   const url = getScriptUrl();
-  if (!url) {
-    // Apri modal di setup
-    document.getElementById('scriptUrlInput').value = '';
-    document.getElementById('setupModal').classList.add('open');
-    return;
-  }
 
   if (isSynced()) {
     if (!confirm(`Questa settimana (${currentKey().replace(/_/g,' ')}) è già stata sincronizzata.\nVuoi sincronizzare di nuovo sovrascrivendo i dati?`)) return;
