@@ -440,8 +440,9 @@ function copyText() {
 }
 
 /* ── SETUP SCRIPT URL ── */
+const SCRIPT_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbyCzm56vyDgAhuk8DxIh7K7vPaptYJsJ1pk_mSWhCWaX9XPKCJ2V9Ips6FH-Oryfq17Jw/exec';
 function getScriptUrl() {
-  try { return localStorage.getItem('rv3_scriptUrl') || ''; } catch(e) { return ''; }
+  try { return localStorage.getItem('rv3_scriptUrl') || SCRIPT_URL_DEFAULT; } catch(e) { return SCRIPT_URL_DEFAULT; }
 }
 function closeSetup() { document.getElementById('setupModal').classList.remove('open'); }
 function saveScriptUrl() {
