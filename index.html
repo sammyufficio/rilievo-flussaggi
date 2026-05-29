@@ -544,12 +544,9 @@ function syncToSheets() {
 
   const tag = document.createElement('script');
   tag.id = '_jsonp_tag';
-  tag.onerror = function() {
-    cleanup();
-    btn.disabled = false;
-    status.style.color = 'var(--red)';
-    status.textContent = '⚠️ Impossibile raggiungere lo script. Controlla l URL nelle impostazioni.';
-  };
+  // NON usiamo onerror: Google Apps Script fa un redirect intermedio che
+  // il browser segnala come errore anche quando i dati sono arrivati correttamente.
+  // Il timeout da 20s è il nostro unico fallback reale.
   tag.src = scriptSrc;
   document.head.appendChild(tag);
 }
