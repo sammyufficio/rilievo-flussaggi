@@ -581,35 +581,44 @@ function generatePDF() {
         y+=10;
 
         pts.forEach(p=>{
-          chkPage(15);
           const d=isDone(p);
-          doc.setFillColor(d?237:250,d?247:250,d?242:248);
-          doc.roundedRect(ML,y,CW,13,1,1,'F');
-          const [ar,ag,ab]=d?[15,110,86]:[180,180,180];
-          doc.setFillColor(ar,ag,ab); doc.rect(ML,y,1.8,13,'F');
-          doc.setFillColor(ar,ag,ab); doc.circle(ML+7,y+6.5,3,'F');
-          doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont('helvetica','bold');
-          doc.text(String(gIdx(p.id)),ML+7,y+8.8,{align:'center'});
-
-          // Colonna sinistra: codice / tipo / flussaggio — larghezza limitata per non invadere le note
           const noteColW=62;                       // larghezza riservata alla colonna note (destra)
           const leftX=ML+12;
           const leftMaxW=CW-12-noteColW-6;          // -6mm di gap di sicurezza tra le due colonne
 
+          // Calcola in anticipo TUTTE le righe della nota (nessun testo tagliato)
+          doc.setFontSize(7);
+          const nl = p.note ? doc.splitTextToSize('Note: '+p.note, noteColW) : [];
+          const noteLineH = 3.2;
+          // Altezza card dinamica: cresce in base al numero di righe della nota
+          const cardH = Math.max(13, 8.5 + nl.length*noteLineH);
+
+          chkPage(cardH+1);
+
+          doc.setFillColor(d?237:250,d?247:250,d?242:248);
+          doc.roundedRect(ML,y,CW,cardH,1,1,'F');
+          const [ar,ag,ab]=d?[15,110,86]:[180,180,180];
+          doc.setFillColor(ar,ag,ab); doc.rect(ML,y,1.8,cardH,'F');
+          doc.setFillColor(ar,ag,ab); doc.circle(ML+7,y+6.5,3,'F');
+          doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont('helvetica','bold');
+          doc.text(String(gIdx(p.id)),ML+7,y+8.8,{align:'center'});
+
+          // Colonna sinistra: codice / tipo / flussaggio
           doc.setTextColor(26,26,24); doc.setFontSize(8); doc.setFont('helvetica','bold');
           doc.text(`${p.code||'—'}`,leftX,y+5.5,{maxWidth:leftMaxW});
           doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,78);
           const infoLine=doc.splitTextToSize(`${p.tipo||'—'}  |  Flussaggio: ${p.flusso?'OK':'NO'}`, leftMaxW);
           doc.text(infoLine[0],leftX,y+10);
 
-          // Colonna destra: note — area dedicata, allineata a destra, non si sovrappone mai alla sinistra
-          if(p.note){
+          // Colonna destra: note — TUTTE le righe vengono disegnate, la card si allunga per contenerle
+          if(nl.length){
             const noteX=PW-MR;
-            const nl=doc.splitTextToSize('Note: '+p.note, noteColW);
             doc.setFontSize(7); doc.setTextColor(40,40,38); doc.setFont('helvetica','bold');
-            doc.text(nl[0],noteX,y+10,{align:'right',maxWidth:noteColW});
+            nl.forEach((line,i)=>{
+              doc.text(line,noteX,y+5.5+i*noteLineH,{align:'right',maxWidth:noteColW});
+            });
           }
-          y+=14;
+          y+=cardH+1;
         });
         y+=3;
       });
