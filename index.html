@@ -35,23 +35,11 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 .progress-fill { background: #9FE1CB; height: 100%; border-radius: 4px; transition: width .35s; }
 .progress-lbl { font-size: 10px; opacity: .7; margin-top: 3px; }
 
-/* SECTION */
-.section { margin: 12px 12px 0; }
-.section-hdr {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; border-radius: 8px 8px 0 0;
-  border-bottom: 2px solid;
-}
-.section-hdr-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; flex: 1; line-height: 1.35; }
-.section-badge { font-size: 10px; color: white; border-radius: 20px; padding: 2px 8px; font-weight: 700; margin-left: 8px; flex-shrink: 0; }
-
 /* POINT CARD */
 .point-card {
-  background: white; border-left: 0.5px solid var(--border); border-right: 0.5px solid var(--border);
-  padding: 11px 13px; margin-bottom: 1px;
+  background: white; border: 0.5px solid var(--border); border-radius: 8px;
+  padding: 11px 13px; margin: 10px 12px 0;
 }
-.point-card:last-of-type { border-radius: 0 0 8px 8px; border-bottom: 0.5px solid var(--border); margin-bottom: 12px; }
-
 .pc-header { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
 .pc-num {
   min-width: 24px; height: 24px; border-radius: 50%;
@@ -60,7 +48,6 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .pc-num.done { background: var(--teal-light); color: var(--teal); }
-.pc-fixed-tag { font-size: 10px; font-weight: 600; background: #FAEEDA; color: #854F0B; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
 
 /* CODE ROW */
 .code-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
@@ -77,14 +64,20 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 }
 .type-select:focus { outline: none; border-color: var(--blue-mid); }
 
-/* FLUSH */
-.flush-btn {
-  width: 100%; padding: 8px; border: 0.5px solid var(--border); border-radius: 7px;
-  background: #fafaf8; font-family: var(--font); font-size: 13px; color: var(--gray);
-  cursor: pointer; text-align: center; transition: background .12s; margin-bottom: 8px;
-  -webkit-tap-highlight-color: transparent;
+/* CAMPI AGGIUNTIVI */
+.field-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.field-lbl { font-size: 11px; color: var(--gray-mid); font-weight: 600; min-width: 48px; }
+.area-input {
+  flex: 1; font-family: var(--font); font-size: 13px; padding: 6px 10px;
+  border: 0.5px solid var(--border); border-radius: 7px; background: #fafaf8; color: #1a1a18;
 }
-.flush-btn.done { background: var(--teal-light); color: var(--teal); border-color: #9FE1CB; font-weight: 700; }
+.area-input:focus { outline: none; border-color: var(--blue-mid); background: var(--blue-light); }
+.cloro-input {
+  width: 80px; font-family: var(--font); font-size: 13px; padding: 6px 10px;
+  border: 0.5px solid var(--border); border-radius: 7px; background: #fafaf8; color: #1a1a18;
+}
+.cloro-input:focus { outline: none; border-color: var(--blue-mid); background: var(--blue-light); }
+.cloro-unit { font-size: 12px; color: var(--gray-mid); font-weight: 600; }
 
 /* NOTE */
 .note-lbl { font-size: 10px; color: var(--gray-mid); margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
@@ -223,61 +216,39 @@ body { font-family: var(--font); background: #f0efe9; color: #1a1a18; font-size:
 <script>
 const TIPI = ['— tipo —','Lavabo','Rubinetto','Soffione','Doccia di emergenza','Lavaocchi','Bocchetta'];
 
-const MACRO = [
-  { id:0, name:'Tunnel di lavaggio lato Roma',                                                                            color:'#185FA5', bg:'#ddeaf9' },
-  { id:1, name:'Palazzina "Bianca", OML, Uffici Manufatto CGT e depositi, FAP coperto, FAP scoperto, Depuratore e aiuole',color:'#0F6E56', bg:'#d6f0e7' },
-  { id:2, name:'Palazzina rossa',                                                                                          color:'#7C3500', bg:'#fce9d6' },
-  { id:3, name:'Rotonda uffici, Mensa, Rotonda spogliatoi ditte, Aiuole',                                                  color:'#533AB7', bg:'#eae8fc' },
-  { id:4, name:'Platea lavaggio lato Salerno',                                                                             color:'#185FA5', bg:'#ddeaf9' },
-  { id:5, name:'Magazzini FS, Uffici MAV, Binari MAV1, Binari MAV2, Binari fascio traccia, Tornio',                       color:'#0F6E56', bg:'#d6f0e7' },
-  { id:6, name:'Fascio Gianturco',                                                                                         color:'#7C3500', bg:'#fce9d6' },
-  { id:7, name:'Magazzino IA, Locale OCA, Container spogliatoio Mercitalia',                                               color:'#533AB7', bg:'#eae8fc' },
-  { id:8, name:'Portineria',                                                                                               color:'#185FA5', bg:'#ddeaf9' },
-  { id:9, name:'Centrale idrica',                                                                                          color:'#0F6E56', bg:'#d6f0e7' },
-  { id:10,name:'Centrale Termica',                                                                                         color:'#7C3500', bg:'#fce9d6' },
-];
-
-const INITIAL_POINTS = [
-  { id:'p1',  macro:0, fisso:true,  code:'D45',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
-  { id:'p2',  macro:1, fisso:true,  code:'D42',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
-  { id:'p3',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p4',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p5',  macro:1, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p6',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p7',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p8',  macro:2, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p9',  macro:3, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p10', macro:3, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p11', macro:4, fisso:true,  code:'D44',   codeFixed:true,  tipo:'Lavaocchi',           tipoFixed:true  },
-  { id:'p12', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p13', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p14', macro:5, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p15', macro:6, fisso:true,  code:'',      codeFixed:false, tipo:'',                    tipoFixed:false },
-  { id:'p16', macro:7, fisso:true,  code:'E48',   codeFixed:true,  tipo:'Doccia di emergenza', tipoFixed:true  },
-  { id:'p17', macro:8, fisso:true,  code:'D46.4', codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
-  { id:'p18', macro:9, fisso:true,  code:'F0.3',  codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
-  { id:'p19', macro:9, fisso:true,  code:'F0.4',  codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
-  { id:'p20', macro:10,fisso:true,  code:'BOILER',codeFixed:true,  tipo:'Rubinetto',           tipoFixed:true  },
-];
+const N_POINTS = 20;
+const STORAGE_KEY = 'rv4';   // nuova struttura dati (i vecchi dati 'rv3' non vengono più letti)
+const STATE_VERSION = 4;
 
 let state = loadState();
 
+function validState(s) { return s && s.v === STATE_VERSION && Array.isArray(s.points); }
+
 function loadState() {
-  try { const s = localStorage.getItem('rv3'); if(s) return JSON.parse(s); } catch(e) {}
+  try { const s = localStorage.getItem(STORAGE_KEY); if(s) { const o = JSON.parse(s); if(validState(o)) return o; } } catch(e) {}
   try {
     const hash = location.hash.slice(1);
     if (hash) {
       const s = JSON.parse(decodeURIComponent(atob(hash)));
-      if (s && s.points) return s;
+      if (validState(s)) return s;
     }
   } catch(e) {}
   return buildInitial();
 }
+// mantiene lo storico delle settimane già sincronizzate dalla vecchia versione
+function legacySyncedKeys() {
+  try {
+    const o = JSON.parse(localStorage.getItem('rv3') || 'null');
+    if (o && Array.isArray(o.syncedKeys)) return o.syncedKeys.slice();
+  } catch(e) {}
+  return [];
+}
 function buildInitial() {
   return {
-    points: INITIAL_POINTS.map(p => ({ ...p, flusso:false, note:'' })),
-    eid: 100, week:'', month:'',
-    syncedKeys: []   // ← chiavi settimane già sincronizzate: "Sett1_Gennaio_2025"
+    v: STATE_VERSION,
+    points: Array.from({length:N_POINTS}, (_,i) => ({ id:'p'+(i+1), code:'', tipo:'', area:'', cloro:'', note:'' })),
+    week:'', month:'',
+    syncedKeys: legacySyncedKeys()   // chiavi settimane già sincronizzate: "Sett1_Gennaio_2025"
   };
 }
 function save() {
@@ -285,7 +256,7 @@ function save() {
     const encoded = btoa(encodeURIComponent(JSON.stringify(state)));
     history.replaceState(null, '', '#' + encoded);
   } catch(e) {}
-  try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
 }
 
 /* ── chiave univoca per la settimana corrente ── */
@@ -319,11 +290,9 @@ function updateSyncBanner() {
   }
 }
 
-function isDone(p) {
-  return p.code && p.code.trim() &&
-         p.tipo && p.tipo.trim() && !p.tipo.startsWith('—') &&
-         p.flusso;
-}
+// Un punto è "flussato" (e completato) appena è stato inserito il codice
+function hasCode(p) { return !!(p.code && p.code.trim()); }
+function isDone(p) { return hasCode(p); }
 
 function gIdx(id) { return state.points.findIndex(p=>p.id===id)+1; }
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -331,13 +300,6 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function upd(id, field, val) {
   const p = state.points.find(x=>x.id===id); if(!p) return;
   p[field]=val; save(); updateProgress(); refreshNum(id);
-}
-function toggleFlush(id) {
-  const p = state.points.find(x=>x.id===id); if(!p) return;
-  p.flusso=!p.flusso; save();
-  const btn = document.querySelector('#card-'+id+' .flush-btn');
-  if(btn){ btn.classList.toggle('done',p.flusso); btn.textContent=p.flusso?'✔ Flussaggio eseguito':'Tocca per confermare flussaggio'; }
-  updateProgress(); refreshNum(id);
 }
 function refreshNum(id) {
   const p=state.points.find(x=>x.id===id);
@@ -348,25 +310,13 @@ function updateProgress() {
   const done=state.points.filter(isDone).length, tot=state.points.length;
   const pct=tot?Math.round(done/tot*100):0;
   document.getElementById('progressBar').style.width=pct+'%';
-  document.getElementById('progressLbl').textContent=`${done} / ${tot} punti completati (${pct}%)`;
+  document.getElementById('progressLbl').textContent=`${done} / ${tot} punti compilati (${pct}%)`;
 }
 
 function render() {
   document.getElementById('hdr-week').value=state.week||'';
   document.getElementById('hdr-month').value=state.month||'';
-  let html='';
-  MACRO.forEach(m=>{
-    const pts=state.points.filter(p=>p.macro===m.id);
-    if(!pts.length) return;
-    html+=`<div class="section">
-      <div class="section-hdr" style="color:${m.color};background:${m.bg};border-bottom-color:${m.color}">
-        <span class="section-hdr-name">${esc(m.name)}</span>
-        <span class="section-badge" style="background:${m.color}">${pts.length}</span>
-      </div>`;
-    pts.forEach(p=>{ html+=renderPoint(p); });
-    html+=`</div>`;
-  });
-  document.getElementById('app').innerHTML=html;
+  document.getElementById('app').innerHTML = state.points.map(renderPoint).join('');
   updateProgress();
   updateSyncBanner();
 }
@@ -376,22 +326,26 @@ function renderPoint(p) {
   return `<div class="point-card" id="card-${p.id}">
     <div class="pc-header">
       <div class="pc-num${done?' done':''}">${gIdx(p.id)}</div>
-      ${p.fisso && p.codeFixed ? `<span class="pc-fixed-tag">Fisso</span>` : ''}
     </div>
     <div class="code-row">
-      <span style="font-size:11px;color:var(--gray-mid);font-weight:600;min-width:48px">Codice</span>
-      ${p.codeFixed
-        ? `<span class="code-badge">${esc(p.code)}</span>`
-        : `<input class="code-input" placeholder="es. D45" value="${esc(p.code)}" oninput="upd('${p.id}','code',this.value)">`}
-      ${p.tipoFixed
-        ? `<span class="tipo-badge">${esc(p.tipo)}</span>`
-        : `<select class="type-select" onchange="upd('${p.id}','tipo',this.value)">${TIPI.map(t=>`<option value="${t.startsWith('—')?'':t}" ${(p.tipo===t||(p.tipo===''&&t.startsWith('—')))?'selected':''}>${t}</option>`).join('')}</select>`}
+      <span class="field-lbl">Codice</span>
+      <input class="code-input" autocomplete="off" value="${esc(p.code)}" oninput="upd('${p.id}','code',this.value)">
+      <select class="type-select" onchange="upd('${p.id}','tipo',this.value)">
+        <option value="">${TIPI[0]}</option>
+        ${TIPI.slice(1).map(t=>`<option value="${t}" ${p.tipo===t?'selected':''}>${t}</option>`).join('')}
+      </select>
     </div>
-    <button class="flush-btn${p.flusso?' done':''}" onclick="toggleFlush('${p.id}')">
-      ${p.flusso?'✔ Flussaggio eseguito':'Tocca per confermare flussaggio'}
-    </button>
+    <div class="field-row">
+      <span class="field-lbl">Area</span>
+      <input class="area-input" autocomplete="off" value="${esc(p.area)}" oninput="upd('${p.id}','area',this.value)">
+    </div>
+    <div class="field-row">
+      <span class="field-lbl">Cloro</span>
+      <input class="cloro-input" autocomplete="off" inputmode="decimal" value="${esc(p.cloro)}" oninput="upd('${p.id}','cloro',this.value)">
+      <span class="cloro-unit">mg/lt</span>
+    </div>
     <div class="note-lbl">Note / Anomalie</div>
-    <textarea class="note-input" placeholder="Osservazioni, cloro, anomalie..." oninput="upd('${p.id}','note',this.value)">${esc(p.note)}</textarea>
+    <textarea class="note-input" oninput="upd('${p.id}','note',this.value)">${esc(p.note)}</textarea>
   </div>`;
 }
 
@@ -408,18 +362,16 @@ function buildText() {
   t+=`Esportato: ${new Date().toLocaleString('it-IT')}\n`;
   t+='─'.repeat(48)+'\n\n';
   let tot=0;
-  MACRO.forEach(m=>{
-    const pts=state.points.filter(p=>p.macro===m.id); if(!pts.length) return;
-    t+=`▸ ${m.name}\n`;
-    pts.forEach(p=>{
-      const d=isDone(p); if(d) tot++;
-      t+=`  ${gIdx(p.id)}. [${d?'✔':'○'}]  Cod: ${p.code||'—'}  |  Tipo: ${p.tipo||'—'}  |  Flussaggio: ${p.flusso?'✔':'—'}\n`;
-      if(p.note) t+=`       Note: ${p.note}\n`;
-    });
+  state.points.filter(hasCode).forEach(p=>{
+    tot++;
+    t+=`${gIdx(p.id)}. Cod: ${p.code.trim()}  |  Tipo: ${p.tipo||'—'}\n`;
+    if(p.area && p.area.trim()) t+=`     Area: ${p.area.trim()}\n`;
+    if(p.cloro && p.cloro.trim()) t+=`     Cloro: ${p.cloro.trim()} mg/lt\n`;
+    if(p.note && p.note.trim()) t+=`     Note: ${p.note.trim()}\n`;
     t+='\n';
   });
   t+='─'.repeat(48)+'\n';
-  t+=`COMPLETATI: ${tot} / ${state.points.length}\n`;
+  t+=`PUNTI COMPILATI: ${tot} / ${state.points.length}\n`;
   return t;
 }
 
@@ -467,31 +419,44 @@ function syncToSheets() {
     return;
   }
 
+  // Solo i punti con codice compilato vengono inviati al foglio
+  const compiled = state.points.filter(hasCode);
+  if (!compiled.length) {
+    alert('Inserisci almeno un codice prima di sincronizzare.');
+    return;
+  }
+
   const btn = document.getElementById('syncBtn');
   const status = document.getElementById('syncStatus');
   btn.innerHTML = '<span class="spinner"></span> Sincronizzazione in corso...';
   btn.disabled = true;
   status.textContent = '';
 
-  // Costruisce le righe da inviare (solo punti completati)
+  // Il foglio Google non ha (ancora) una colonna "cloro": finché lo script non viene
+  // aggiornato il valore viene accodato alle note. Dopo l'aggiornamento mettere false.
+  const CLORO_IN_NOTE = true;
+  function noteForSheet(p) {
+    const parts = [];
+    if (CLORO_IN_NOTE && p.cloro && p.cloro.trim()) parts.push('Cloro: ' + p.cloro.trim() + ' mg/lt');
+    if (p.note && p.note.trim()) parts.push(p.note.trim());
+    return parts.join(' | ');
+  }
+
   const anno = new Date().getFullYear();
-  const rows = [];
-  state.points.forEach(p => {
-    const macroName = MACRO.find(m => m.id === p.macro)?.name || '';
-    rows.push({
-      anno:      anno,
-      mese:      state.month,
-      settimana: state.week,
-      chiave:    currentKey(),
-      numero:    gIdx(p.id),
-      codice:    p.code || '—',
-      tipo:      p.tipo || '—',
-      macroarea: macroName,
-      flussato:  p.flusso ? 'SI' : 'NO',
-      completato: isDone(p) ? 'SI' : 'NO',
-      note:      p.note || ''
-    });
-  });
+  const rows = compiled.map(p => ({
+    anno:       anno,
+    mese:       state.month,
+    settimana:  state.week,
+    chiave:     currentKey(),
+    numero:     gIdx(p.id),
+    codice:     p.code.trim(),
+    tipo:       p.tipo || '—',
+    macroarea:  (p.area || '').trim(),   // la colonna "macroarea" ora contiene l'Area scritta a mano
+    flussato:   'SI',
+    completato: 'SI',
+    cloro:      (p.cloro || '').trim(),  // campo extra (ignorato dallo script attuale)
+    note:       noteForSheet(p)
+  }));
 
   const payload = {
     action: 'sync',
@@ -556,76 +521,81 @@ function generatePDF() {
 
       // Header
       doc.setFillColor(24,95,165);
-      doc.rect(0,0,PW,26,'F');
+      doc.rect(0,0,PW,32,'F');
       doc.setTextColor(255,255,255);
-      doc.setFontSize(12); doc.setFont('helvetica','bold');
-      doc.text('RILIEVO FLUSSAGGI SETTIMANALE',ML,10);
-      doc.setFontSize(7.5); doc.setFont('helvetica','normal');
-      doc.text('Trenitalia IMC AV – Gianturco, Napoli',ML,16);
-      doc.text(`Settimana ${w}  |  ${mo}`,ML,21.5);
-      y=30;
+      doc.setFontSize(17); doc.setFont('helvetica','bold');
+      doc.text('RILIEVO FLUSSAGGI SETTIMANALE',ML,12);
+      doc.setFontSize(10.5); doc.setFont('helvetica','normal');
+      doc.text('Trenitalia IMC AV – Gianturco, Napoli',ML,19.5);
+      doc.text(`Settimana ${w}  |  ${mo}`,ML,26);
+      y=38;
 
-      MACRO.forEach(m=>{
-        const pts=state.points.filter(p=>p.macro===m.id); if(!pts.length) return;
-        chkPage(12+pts.length*16);
-        const [cr,cg,cb]=hexRGB(m.color);
-        const [br,bg2,bb]=hexRGB(m.bg);
+      const pts=state.points.filter(hasCode);
+      if(!pts.length){
+        doc.setTextColor(80,80,78); doc.setFontSize(11); doc.setFont('helvetica','normal');
+        doc.text('Nessun punto compilato.',ML,y+4);
+      }
 
-        doc.setFillColor(br,bg2,bb);
-        doc.roundedRect(ML,y,CW,8,1.5,1.5,'F');
-        doc.setDrawColor(cr,cg,cb); doc.setLineWidth(0.5);
-        doc.line(ML,y+8,ML+CW,y+8);
-        doc.setTextColor(cr,cg,cb); doc.setFontSize(6.5); doc.setFont('helvetica','bold');
-        const mLines=doc.splitTextToSize(m.name.toUpperCase(),CW-4);
-        doc.text(mLines[0],ML+3,y+5.5);
-        y+=10;
+      // Larghezza colonna sinistra (codice / tipo / area) adattata al testo più lungo, con un massimo
+      const LH=5;                                 // interlinea (mm)
+      const gap=8;                                // spazio tra le due colonne
+      const leftX=ML+12;                          // dopo il numero
+      const textAreaW=CW-12-4;
+      doc.setFontSize(11.5); doc.setFont('helvetica','bold');
+      let need=0;
+      pts.forEach(p=>{ need=Math.max(need,doc.getTextWidth(p.code.trim())); });
+      doc.setFontSize(10); doc.setFont('helvetica','normal');
+      pts.forEach(p=>{
+        need=Math.max(need,doc.getTextWidth(p.tipo||'—'));
+        if(p.area&&p.area.trim()) need=Math.max(need,doc.getTextWidth('Area: '+p.area.trim()));
+      });
+      const leftW=Math.min(85,Math.max(35,need+2));
+      const rightW=textAreaW-leftW-gap;           // la colonna cloro/note usa tutto lo spazio rimasto
+      const rightX=leftX+leftW+gap;
 
-        pts.forEach(p=>{
-          const d=isDone(p);
-          const noteColW=62;                       // larghezza riservata alla colonna note (destra)
-          const leftX=ML+12;
-          const leftMaxW=CW-12-noteColW-6;          // -6mm di gap di sicurezza tra le due colonne
+      pts.forEach(p=>{
+        doc.setFontSize(10); doc.setFont('helvetica','normal');
+        const areaLines=(p.area&&p.area.trim())?doc.splitTextToSize('Area: '+p.area.trim(),leftW):[];
+        const noteLines=(p.note&&p.note.trim())?doc.splitTextToSize('Note: '+p.note.trim(),rightW):[];
+        const hasCl=!!(p.cloro&&p.cloro.trim());
+        const leftN=2+areaLines.length;
+        const rightN=(hasCl?1:0)+noteLines.length;
+        const CH=Math.max(leftN,rightN)*LH+5;
+        chkPage(CH+3);
 
-          // Calcola in anticipo TUTTE le righe della nota (nessun testo tagliato)
-          doc.setFontSize(7);
-          const nl = p.note ? doc.splitTextToSize('Note: '+p.note, noteColW) : [];
-          const noteLineH = 3.2;
-          // Altezza card dinamica: cresce in base al numero di righe della nota
-          const cardH = Math.max(13, 8.5 + nl.length*noteLineH);
+        doc.setFillColor(237,247,242);
+        doc.roundedRect(ML,y,CW,CH,1,1,'F');
+        doc.setFillColor(15,110,86); doc.rect(ML,y,1.8,CH,'F');
 
-          chkPage(cardH+1);
+        const y0=y+6.5;                           // prima riga
+        // Numero (senza cerchio)
+        doc.setTextColor(15,110,86); doc.setFontSize(12); doc.setFont('helvetica','bold');
+        doc.text(String(gIdx(p.id)),ML+8,y0,{align:'center'});
 
-          doc.setFillColor(d?237:250,d?247:250,d?242:248);
-          doc.roundedRect(ML,y,CW,cardH,1,1,'F');
-          const [ar,ag,ab]=d?[15,110,86]:[180,180,180];
-          doc.setFillColor(ar,ag,ab); doc.rect(ML,y,1.8,cardH,'F');
-          doc.setFillColor(ar,ag,ab); doc.circle(ML+7,y+6.5,3,'F');
-          doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont('helvetica','bold');
-          doc.text(String(gIdx(p.id)),ML+7,y+8.8,{align:'center'});
+        // Colonna sinistra
+        doc.setTextColor(26,26,24); doc.setFontSize(11.5); doc.setFont('helvetica','bold');
+        doc.text(doc.splitTextToSize(p.code.trim(),leftW)[0],leftX,y0);
+        doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(60,60,58);
+        doc.text(p.tipo||'—',leftX,y0+LH);
+        areaLines.forEach((ln,i)=>doc.text(ln,leftX,y0+LH*(2+i)));
 
-          // Colonna sinistra: codice / tipo / flussaggio
-          doc.setTextColor(26,26,24); doc.setFontSize(8); doc.setFont('helvetica','bold');
-          doc.text(`${p.code||'—'}`,leftX,y+5.5,{maxWidth:leftMaxW});
-          doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,78);
-          const infoLine=doc.splitTextToSize(`${p.tipo||'—'}  |  Flussaggio: ${p.flusso?'OK':'NO'}`, leftMaxW);
-          doc.text(infoLine[0],leftX,y+10);
-
-          // Colonna destra: note — TUTTE le righe vengono disegnate, la card si allunga per contenerle
-          if(nl.length){
-            const noteX=PW-MR;
-            doc.setFontSize(7); doc.setTextColor(40,40,38); doc.setFont('helvetica','bold');
-            nl.forEach((line,i)=>{
-              doc.text(line,noteX,y+5.5+i*noteLineH,{align:'right',maxWidth:noteColW});
-            });
-          }
-          y+=cardH+1;
-        });
-        y+=3;
+        // Colonna destra
+        let ry=y0;
+        if(hasCl){
+          doc.setFontSize(10.5); doc.setFont('helvetica','bold'); doc.setTextColor(15,110,86);
+          doc.text(`Cloro: ${p.cloro.trim()} mg/lt`,rightX,ry);
+          ry+=LH;
+        }
+        if(noteLines.length){
+          doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(30,30,28);
+          noteLines.forEach((ln,i)=>doc.text(ln,rightX,ry+LH*i));
+        }
+        y+=CH+3;
       });
 
       doc.setFillColor(238,237,232);
       doc.rect(0,PH-10,PW,10,'F');
-      doc.setTextColor(140,140,138); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
+      doc.setTextColor(120,120,118); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
       doc.text(`Trenitalia IMC AV – Gianturco, Napoli  |  Settimana ${w} – ${mo}`,PW/2,PH-4,{align:'center'});
 
       doc.save(`Rilievo_Flussaggi_Sett${w}_${mo}.pdf`);
@@ -639,8 +609,8 @@ function nuovaSett() {
   const syncedKeys = state.syncedKeys || [];
   state = buildInitial();
   state.syncedKeys = syncedKeys; // mantieni storico sync
-  try { localStorage.removeItem('rv3'); } catch(e) {}
-  try { localStorage.setItem('rv3', JSON.stringify(state)); } catch(e) {}
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
   try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
   render();
   window.scrollTo({top:0,behavior:'smooth'});
