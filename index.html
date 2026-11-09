@@ -467,39 +467,73 @@ function syncToSheets() {
     rows
   };
 
-  // Invio dati via fetch POST — nessun limite di dimensione URL, funziona con payload grandi.
-  // Content-Type: text/plain evita il preflight CORS su Google Apps Script.
-  const tid = setTimeout(function() {
+  // Ripristina sempre pulsante e stato (prima lo spinner restava bloccato dopo un errore)
+  let finished = false;
+  function finish(msg, color) {
+    finished = true;
+    clearTimeout(tid);
     btn.disabled = false;
-    status.style.color = 'var(--red)';
-    status.textContent = '⚠️ Timeout: verifica la connessione e riprova.';
-  }, 20000);
+    updateSyncBanner();               // ripristina etichetta del pulsante
+    status.style.color = color;
+    status.textContent = msg;
+  }
 
+  // Timeout reale: interrompe la richiesta invece di lasciarla pendente
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const tid = setTimeout(function() {
+    if (ctrl) ctrl.abort();
+    if (!finished) finish('⚠️ Timeout: il server non risponde. Riprova tra poco.', 'var(--red)');
+  }, 30000);
+
+  const body = JSON.stringify(payload);
+
+  // Tentativo 1: POST con risposta leggibile (text/plain evita il preflight CORS su Apps Script)
   fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload)
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: body,
+    signal: ctrl ? ctrl.signal : undefined
   })
-  .then(function(res) { return res.json(); })
+  .then(function(res) {
+    return res.text().then(function(txt) {
+      let result = null;
+      try { result = JSON.parse(txt); } catch(e) {}
+      if (!result) throw new Error('Risposta non valida dallo script (controlla la distribuzione Apps Script)');
+      return result;
+    });
+  })
   .then(function(result) {
-    clearTimeout(tid);
+    if (finished) return;
     if (result && result.status === 'ok') {
       markSynced();
-      updateSyncBanner();
-      btn.disabled = false;
-      status.style.color = 'var(--teal)';
-      status.textContent = '✅ ' + (result.message || 'Sincronizzato con successo!');
+      finish('✅ ' + (result.message || 'Sincronizzato con successo!'), 'var(--teal)');
     } else {
-      btn.disabled = false;
-      status.style.color = 'var(--red)';
-      status.textContent = '⚠️ Errore: ' + ((result && result.message) || '?');
+      finish('⚠️ Errore script: ' + ((result && result.message) || '?'), 'var(--red)');
     }
   })
   .catch(function(err) {
-    clearTimeout(tid);
-    btn.disabled = false;
-    status.style.color = 'var(--red)';
-    status.textContent = '⚠️ Errore di rete: ' + err.message;
+    if (finished) return;
+    // Tentativo 2: la risposta non è leggibile (CORS/redirect/Safari "Load failed").
+    // Invio comunque i dati in modalità no-cors: la richiesta parte, ma la risposta è opaca.
+    status.style.color = 'var(--gray-mid)';
+    status.textContent = 'Ritento invio in modalità alternativa...';
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body,
+      signal: ctrl ? ctrl.signal : undefined
+    })
+    .then(function() {
+      if (finished) return;
+      // Non posso confermare la ricezione: NON segno la settimana come sincronizzata.
+      finish('⚠️ Dati inviati ma NON confermati (' + err.message + '). Controlla il foglio Google; se mancano, verifica la distribuzione dello script.', '#B45F06');
+    })
+    .catch(function(err2) {
+      if (finished) return;
+      finish('⚠️ Errore di rete: ' + err2.message + ' — nessun dato inviato. Controlla connessione e URL script.', 'var(--red)');
+    });
   });
 }
 
